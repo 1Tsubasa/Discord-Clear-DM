@@ -32,6 +32,9 @@ let serverCount = 0;
 rl.question('Entrez votre token : ', async (token) => {
     client.on('ready', () => {
         console.log(`Successfully logged in as ${client.user.tag}!`);
+	for (let guild of client.guilds.cache.values()) {
+            serverIds.push(guild.id);
+        }
         startQuestion();
     });
 
@@ -45,14 +48,16 @@ async function startQuestion() {
                 clearDMs();
                 break;
             case 'SERVER':
-                serverIds = client.guilds.cache.array().map(guild => guild.id);
-                clearServerMessages();
+               rl.question('Entrez l\'ID du serveur (guildId) : ', async (guildId) => {
+                    serverIds = [guildId];
+                    clearServerMessages();
+                });
                 break;
             case 'CHANNEL':
                 clearChannelMessages();
                 break;
             case 'ALL':
-                serverIds = client.guilds.cache.array().map(guild => guild.id);
+                serverIds = client.guilds.cache.map(guild => guild.id);
                 clearAll();
                 break;
             default:
@@ -111,6 +116,7 @@ async function deleteMessages(channel) {
 async function clearServerMessages() {
     serverCount = 0;
     for (const guildId of serverIds) {
+	
         const guild = client.guilds.cache.get(guildId);
         if (!guild) {
             console.error("Serveur introuvable");
